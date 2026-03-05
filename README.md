@@ -12,6 +12,13 @@ We are using the City of Chicago's crime dataset, which provides comprehensive i
 
 [Crimes - 2001 to Present](https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2/about_data)
 
+## Dataset Setup
+
+The dataset is not stored in this repo. Download it before running any code.
+
+1. Download `dataset.csv` from [this link](https://drive.google.com/...)
+2. Place it at `data/dataset.csv` in the project root
+
 ## Development Workflow
 
 To maintain code quality and ensure collaboration, please follow this workflow:
