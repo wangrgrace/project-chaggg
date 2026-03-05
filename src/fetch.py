@@ -16,7 +16,7 @@ import json
 # │       └── chicago_crimes_2001_2025.csv
 
 # ── Config ────────────────────────────────────────────────────────────────────
-APP_TOKEN    = "2jkwyOog35lVR5aH2wYkwJrKS"  # Get your token from Chicago Data portal
+APP_TOKEN    = "YOUR APP TOKEN HERE"  # Get your token from Chicago Data portal
 BASE_URL     = "https://data.cityofchicago.org/resource/ijzp-q8t2.json"
 BATCH_SIZE   = 50000
 BASE_DIR = os.getcwd()
