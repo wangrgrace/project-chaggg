@@ -23,13 +23,12 @@ The datasets are not stored in this repository. To download them, follow these s
 
 To maintain code quality and ensure collaboration, please follow this workflow:
 
-1. **Develop locally** – Write and test code in your personal notebooks until you're confident it works
-2. **Integrate code** – Copy your working code into the relevant script
-3. **Create a branch** – Create a new branch either:
+1. **Create a branch** – Create a new branch either:
    - Locally in your IDE, or
    - On GitHub (then switch to it in your IDE)
+2. **Develop locally** – Write and test code in your personal notebooks until you're confident it works
+3. **Integrate code** – Copy your working code into the relevant script
 4. **Commit changes** – Commit your changes to this branch with a descriptive commit message that everyone understand
-5. **Push to remote** – If you created the branch locally, push it to the remote repository
 6. **Open a pull request** – Create a pull request with a brief description of your changes
 7. **Request review** – Tag a team member for code review
 8. **Merge** – After approval, the pull request can be merged into `main`
