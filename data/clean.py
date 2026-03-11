@@ -43,7 +43,6 @@ time_series = []
 for time in df['date']:
     time_series.append(time[11:19])
 
-df.drop(columns=['date'])
 df['date'] = date_series
 df['time'] = time_series
 
