@@ -143,3 +143,11 @@ for col in df.select_dtypes(include="object").columns:
     nan_string  = (df[col].astype(str) == "nan").sum()
     if empty_count > 0 or nan_string > 0:
         print(col, "- empty strings:", empty_count, "| 'nan' strings:", nan_string)
+
+# ── Save cleaned data ─────────────────────────────────────────────────────────
+df = df.drop(columns=["has_missing"])
+
+CLEAN_DATA_PATH = 'data/cleaned/chicago_crimes_cleaned.csv'
+os.makedirs('data/cleaned', exist_ok=True)
+df.to_csv(CLEAN_DATA_PATH, index=False)
+print(f"Cleaned data saved to {CLEAN_DATA_PATH}")
