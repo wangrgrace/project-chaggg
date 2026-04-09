@@ -8,3 +8,8 @@ __pycache__/
 *.egg-info/
 *.pyc
 .venv/
+notebooks/01_download_data.ipynb
+notebooks/01_download_data.ipynb
+notebooks/01_download_data.ipynb
+notebooks/gustavo_sandbox.ipynb
+notebooks/yuri_sandbox.ipynb
