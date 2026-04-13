@@ -38,3 +38,8 @@ data/**/*.parquet
 data/**/*.json
 data/**/*.pkl
 data/**/*.pickle
+notebooks/01_download_data.ipynb
+notebooks/01_download_data.ipynb
+notebooks/01_download_data.ipynb
+notebooks/gustavo_sandbox.ipynb
+notebooks/yuri_sandbox.ipynb
