@@ -97,7 +97,7 @@ def add_cyclical_time_features(df):
     return df
 
 def remove_na_coordinates(df):
-    print("Removing rows with NaN values in longitude and latitude...")
+    print("\nRemoving rows with NaN values in longitude and latitude...")
     return df.dropna(subset=['longitude', 'latitude'])
 
 def drop_redundant_columns(df):
