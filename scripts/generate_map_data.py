@@ -1,54 +1,34 @@
-import csv
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import json
 import random
+import pandas as pd
+from src.flask_app.data import load_crime_data
 
-points_by_year = {}
-stats_by_year = {}
+df = load_crime_data()
+df = df[df["year"].between(2002, 2025)]
 
-with open("./data/cleaned/chicago_crimes_cleaned.csv", "r") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        year = row['year']
-
-        if year < '2002' or year > '2025':
-            continue
-
-        lat = row['latitude']
-        lon = row['longitude']
-        crime_type = row['primary_type']
-        area = row['community_area']
-
-        if year not in points_by_year:
-            points_by_year[year] = []
-        if year not in stats_by_year:
-            stats_by_year[year] = {}
-
-        if lat and lon:
-            points_by_year[year].append([float(lat), float(lon), crime_type])
-
-        if area:
-            if area not in stats_by_year[year]:
-                stats_by_year[year][area] = {'total': 0, 'types': {}}
-            stats_by_year[year][area]['total'] += 1
-            stats_by_year[year][area]['types'][crime_type] = stats_by_year[year][area]['types'].get(crime_type, 0) + 1
-
+# --- sampled points (20k per year) ---
+valid = df[df["latitude"].notna() & df["longitude"].notna()].copy()
 sampled = {}
+for year, group in valid.groupby("year"):
+    pts = group[["latitude", "longitude", "primary_type"]].values.tolist()
+    sampled[str(int(year))] = random.sample(pts, min(20000, len(pts)))
+    print(f"{int(year)}: {len(pts)} points -> sampled {len(sampled[str(int(year))])}")
+
+# --- community stats per year ---
 community_stats = {}
+for year, yg in df.groupby("year"):
+    year_key = str(int(year))
+    community_stats[year_key] = {}
+    for area, ag in yg.groupby("community_area"):
+        area_key = str(int(area))
+        type_counts = ag["primary_type"].value_counts()
+        top3 = [[t, int(c)] for t, c in type_counts.head(3).items()]
+        community_stats[year_key][area_key] = {"total": int(len(ag)), "top3": top3}
 
-for year in sorted(points_by_year.keys()):
-    pts = points_by_year[year]
-    sampled[year] = random.sample(pts, min(20000, len(pts)))
-    print(f"{year}: {len(pts)} points -> sampled {len(sampled[year])}")
-
-    community_stats[year] = {}
-    if year in stats_by_year:
-        for area, s in stats_by_year[year].items():
-            top3 = sorted(s['types'].items(), key=lambda x: x[1], reverse=True)[:3]
-            community_stats[year][area] = {
-                'total': s['total'],
-                'top3': [[t, c] for t, c in top3]
-            }
-
+# --- save ---
 with open("./src/flask_app/static/data/space/sampled_points_by_year.json", "w") as f:
     json.dump(sampled, f)
 

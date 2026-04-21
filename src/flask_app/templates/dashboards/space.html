@@ -64,10 +64,19 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
 <script>
   const map = L.map('map').setView([41.8781, -87.6298], 11);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors', maxZoom: 19
+  map.createPane('labels');
+  map.getPane('labels').style.zIndex = 650;
+  map.getPane('labels').style.pointerEvents = 'none';
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+  }).addTo(map);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19, pane: 'labels'
   }).addTo(map);
 
   let clusterLayer, heatLayer, boundaryLayer;
@@ -91,13 +100,14 @@
 
     const heatData = points.map(([lat, lon]) => [lat, lon, 0.4]);
     heatLayer = L.heatLayer(heatData, {
-      radius: 12, blur: 18, maxZoom: 15, minOpacity: 0.05, max: 1.0,
-      gradient: { 0.0: 'rgba(0,0,0,0)', 0.15: '#1a9850', 0.3: '#91cf60', 0.45: '#d9ef8b',
-                  0.6: '#fee08b', 0.75: '#fc8d59', 0.9: '#d73027', 1.0: '#a50026' }
+      radius: 12, blur: 18, maxZoom: 15, minOpacity: 0.03, max: 1.0,
+      gradient: { 0.0: 'rgba(0,0,0,0)', 0.2: 'rgba(26,152,80,0.4)', 0.35: 'rgba(145,207,96,0.5)',
+                  0.5: 'rgba(217,239,139,0.5)', 0.65: 'rgba(254,224,139,0.5)',
+                  0.8: 'rgba(252,141,89,0.6)', 0.95: 'rgba(215,48,39,0.7)', 1.0: 'rgba(165,0,38,0.8)' }
     }).addTo(map);
 
     boundaryLayer = L.geoJSON(geojsonData, {
-      style: { color: '#94a3b8', weight: 1.2, fillOpacity: 0.01, opacity: 0.5 },
+      style: { color: 'rgba(148,163,184,0.5)', weight: 1.2, fillOpacity: 0.01, opacity: 0.7 },
       onEachFeature: (feature, layer) => {
         const areaNum = feature.properties.area_numbe;
         const name = feature.properties.community;
@@ -117,6 +127,7 @@
         layer.on('mouseout', () => boundaryLayer.resetStyle(layer));
       }
     }).addTo(map);
+
     boundaryLayer.bringToFront();
   }
 
@@ -151,4 +162,5 @@
     legend.addTo(map);
   });
 </script>
+
 {% endblock %}
