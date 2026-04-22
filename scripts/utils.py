@@ -5,14 +5,17 @@ Common usage:
     from scripts.utils import load_data
     df = load_data()
 """
+
 import pandas as pd
 import os
+import math
+
 try:
     from .config import *  # When imported as a module (Flask)
 except ImportError:
     from config import * # When run directly from scripts/
 
-def load_data(prefer_parquet=True, columns=None):
+def load_data(prefer_parquet=True, columns = None):
     """
     Load cleaned Chicago crime data.
     
@@ -25,7 +28,7 @@ def load_data(prefer_parquet=True, columns=None):
     """
     if prefer_parquet and os.path.exists(CLEANED_PARQUET):
         print(f"Loading from {CLEANED_PARQUET}...")
-        return pd.read_parquet(CLEANED_PARQUET, columns=columns)  # parquet supports this natively
+        return pd.read_parquet(CLEANED_PARQUET, columns=columns) 
     
     if os.path.exists(CLEANED_CSV):
         print(f"Loading from {CLEANED_CSV}...")

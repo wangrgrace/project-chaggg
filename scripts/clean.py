@@ -8,6 +8,7 @@ Usage:
     python clean.py
 """
 import pandas as pd
+import numpy as np
 import os
 from config import *
 
@@ -49,6 +50,13 @@ def convert_types(df):
     df["district"] = pd.to_numeric(df["district"], errors="coerce").astype("Int64")
     df["ward"] = pd.to_numeric(df["ward"], errors="coerce").astype("Int64")
     df["community_area"] = pd.to_numeric(df["community_area"], errors="coerce").astype("Int64")
+
+    # ── Fix known typos before encoding as categorical ──────────────────
+    print("  - Fixing primary_type typos...")
+    PRIMARY_TYPE_FIXES = {
+        "CRIM SEXUAL ASSAULT": "CRIMINAL SEXUAL ASSAULT",
+    }
+    df["primary_type"] = df["primary_type"].replace(PRIMARY_TYPE_FIXES)
     
     # Categorical encoding for memory efficiency
     print("  - Encoding categorical columns...")
@@ -67,16 +75,36 @@ def extract_temporal_features(df):
     df['month'] = df['date'].dt.month
     df['day'] = df['date'].dt.day
     df['day_of_week'] = df['date'].dt.dayofweek  # 0=Monday, 6=Sunday
+    df['day_of_year'] = df['date'].dt.dayofyear  # 1–365 (or 366 in leap years)
     
     # From time column (convert back to datetime to extract hour)
     df['hour'] = pd.to_datetime(df['time'], format='%H:%M:%S').dt.hour
+    df['minute'] = pd.to_datetime(df['time'], format='%H:%M:%S').dt.minute
     
-    print(f"  - Extracted: year, month, day, hour, day_of_week")
+    print(f"  - Extracted: year, month, day, hour, minute, day_of_week, day_of_year")
     
     return df
 
+def add_cyclical_time_features(df):
+    """Encode cyclical time features using sine/cosine transformation."""
+    print("\nAdding cyclical time features...")
+
+    cycles = {
+        'hour':        24,
+        'day_of_week': 7,
+        'month':       12,
+        'day_of_year': 365,  # Approximate, doesn't account for leap years
+    }
+
+    for col, period in cycles.items():
+        df[f'{col}_sin'] = np.sin(2 * np.pi * df[col] / period)
+        df[f'{col}_cos'] = np.cos(2 * np.pi * df[col] / period)
+        print(f"  - {col}_sin, {col}_cos (period={period})")
+
+    return df
+
 def remove_na_coordinates(df):
-    print("Removing rows with NaN values in longitude and latitude...")
+    print("\nRemoving rows with NaN values in longitude and latitude...")
     return df.dropna(subset=['longitude', 'latitude'])
 
 def drop_redundant_columns(df):
@@ -85,6 +113,20 @@ def drop_redundant_columns(df):
     if 'location' in df.columns:
         print("  - Removing 'location' column (redundant with x/y coordinates)")
         df = df.drop(columns=['location'])
+    return df
+
+def remove_invalid_coordinates(df):
+    """Remove rows with coordinates outside of valid Chicago bounds."""
+    print("\nRemoving rows with invalid coordinates...")
+    
+    initial_count = len(df)
+    valid_lat = df['latitude'].between(*VALID_LAT_RANGE)
+    valid_lon = df['longitude'].between(*VALID_LON_RANGE)
+    
+    df = df[valid_lat & valid_lon]
+    
+    final_count = len(df)
+    print(f"Records: {initial_count:,} → {final_count:,} ({initial_count - final_count:,} removed)")
     return df
 
 # ── Validation & Reporting ────────────────────────────────────────────────────
@@ -106,32 +148,6 @@ def print_missing_summary(df, label=""):
         print(display_summary.to_string())
     
     return summary
-
-def validate_coordinates(df):
-    """Report on coordinate validity (but don't drop yet)."""
-    print("\nCoordinate validation:")
-    print("-" * 60)
-    
-    invalid_lat = ~df['latitude'].between(*VALID_LAT_RANGE)
-    invalid_lon = ~df['longitude'].between(*VALID_LON_RANGE)
-    null_lat = df['latitude'].isnull()
-    null_lon = df['longitude'].isnull()
-    
-    print(f"Valid Chicago latitude range:  {VALID_LAT_RANGE}")
-    print(f"Valid Chicago longitude range: {VALID_LON_RANGE}\n")
-    
-    print(f"Invalid latitude:  {invalid_lat.sum():,} total")
-    print(f"  - Null values:   {null_lat.sum():,}")
-    print(f"  - Out of range:  {(invalid_lat.sum() - null_lat.sum()):,}\n")
-    
-    print(f"Invalid longitude: {invalid_lon.sum():,} total")
-    print(f"  - Null values:   {null_lon.sum():,}")
-    print(f"  - Out of range:  {(invalid_lon.sum() - null_lon.sum()):,}\n")
-    
-    print("Note: Not dropping these observations yet.")
-    print("      Further analysis recommended before deciding.")
-    
-    return df
 
 def print_data_overview(df):
     """Print basic data overview."""
@@ -164,12 +180,13 @@ def main():
     df = filter_years(df)
     df = convert_types(df)
     df = extract_temporal_features(df)
+    df = add_cyclical_time_features(df)
     df = remove_na_coordinates(df)
+    df = remove_invalid_coordinates(df)
     df = drop_redundant_columns(df)
     
     # Validate & Report
     print_missing_summary(df, "Missing Values After Type Conversion:")
-    validate_coordinates(df)
     print_data_overview(df)
     
     # Save
