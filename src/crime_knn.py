@@ -3,10 +3,10 @@ import numpy as np
 import sys, os
 import pyinputplus as pyip
 
-sys.path.insert(0, os.path.abspath('..'))   # so max_heap.py is importable
+#sys.path.insert(0, os.path.abspath('..'))   # so max_heap.py is importable
 from max_heap import MaxHeap, euclidean_distance
 
-sys.path.insert(0, os.path.abspath('..'))   # so max_heap.py is importable
+#sys.path.insert(0, os.path.abspath('..'))   # so max_heap.py is importable
 from src.preprocess_data import preprocess_data
 
 # --- Primary Type filter:
