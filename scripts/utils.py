@@ -93,6 +93,11 @@ def apply_scaler(X, mean, std):
     """Apply previously-fit standardization to data."""
     return (X - mean) / std
 
+def temporal_split(df, date_col='date', train_end='2022-12-31'):
+    """Split into train (≤ train_end) and test (> train_end)."""
+    train_mask = df[date_col] <= train_end
+    return df[train_mask].reset_index(drop=True), df[~train_mask].reset_index(drop=True)
+
 if __name__ == "__main__":
     print("=" * 60)
     print("CHICAGO CRIME DATA UTILITIES")
