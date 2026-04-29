@@ -83,21 +83,6 @@ def get_data_info():
         else:
             print(f"✗ {name:20s} {'(not found)':>10s}  {path}")
 
-def fit_scaler(X_train):
-    """Fit standardization parameters on training data."""
-    mean = X_train.mean(axis=0)
-    std = X_train.std(axis=0) + 1e-8
-    return mean, std
-
-def apply_scaler(X, mean, std):
-    """Apply previously-fit standardization to data."""
-    return (X - mean) / std
-
-def temporal_split(df, date_col='date', train_end='2022-12-31'):
-    """Split into train (≤ train_end) and test (> train_end)."""
-    train_mask = df[date_col] <= train_end
-    return df[train_mask].reset_index(drop=True), df[~train_mask].reset_index(drop=True)
-
 if __name__ == "__main__":
     print("=" * 60)
     print("CHICAGO CRIME DATA UTILITIES")
