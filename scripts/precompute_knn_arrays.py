@@ -20,7 +20,8 @@ FEATURE_COLS = [
     "day_of_year_sin", "day_of_year_cos",
 ]
 LABEL_COL = "arrest"
-OUTPUT_DIR = Path("data/precomputed/knn")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_DIR = PROJECT_ROOT / "data" / "precomputed" / "knn"
 
 
 def precompute_one(df, crime_type: str) -> dict:
