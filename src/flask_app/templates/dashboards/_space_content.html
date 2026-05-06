@@ -12,25 +12,125 @@
   #map { height: 100%; width: 100%; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
   .year-control {
     position: absolute; top: 10px; right: 10px;
-    background: rgba(15,20,25,0.9); padding: 10px 14px;
-    border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.4);
-    font: 13px/1.6 'DM Sans', sans-serif; color: #e2e8f0;
-    z-index: 1000; width: 320px;
+    background: rgba(20, 30, 40, 0.92);
+    border: 1px solid rgba(90, 155, 110, 0.3);
+    padding: 12px 16px;
+    border-radius: 4px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #e6edf3;
+    z-index: 1000;
+    width: 320px;
   }
-  .year-control label { display: block; text-align: center; margin-bottom: 6px; font-weight: 600; }
-  .year-control #yearValue { color: #3b82f6; font-size: 14px; }
-  .year-control input[type=range] { width: 100%; }
+  .year-control label {
+    display: block;
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: #5a9b6e;
+  }
+  .year-control #yearValue {
+    color: #a0ff8c;
+    font-size: 15px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+  .year-control input[type=range] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: rgba(90, 155, 110, 0.25);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  .year-control input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #5a9b6e;
+    border: 2px solid #a0ff8c;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(160, 255, 140, 0.5);
+    transition: transform 0.15s;
+  }
+  .year-control input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+  .year-control input[type=range]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: #5a9b6e;
+    border: 2px solid #a0ff8c;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(160, 255, 140, 0.5);
+  }
   .legend {
-    background: rgba(15,20,25,0.9); padding: 10px 14px;
-    border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.4);
-    font: 13px/1.6 'DM Sans', sans-serif; color: #e2e8f0;
+    background: rgba(20, 30, 40, 0.92);
+    border: 1px solid rgba(90, 155, 110, 0.3);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #e6edf3;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
   }
-  .legend h4 { margin: 0 0 6px; font-size: 13px; }
-  .legend i { display: inline-block; width: 18px; height: 10px; margin-right: 6px; border-radius: 2px; }
+  .legend h4 {
+    margin: 0 0 8px;
+    color: #5a9b6e;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+  }
+  .legend i {
+    display: inline-block;
+    width: 18px;
+    height: 10px;
+    margin-right: 6px;
+    border-radius: 2px;
+  }
   .leaflet-popup-content-wrapper { background: #1a2332; color: #e2e8f0; border-radius: 6px; }
   .leaflet-popup-tip { background: #1a2332; }
   .leaflet-popup-content { font-family: 'DM Sans', sans-serif; }
   .leaflet-popup-content hr { border-color: #334155; }
+  .cluster-mark {
+      background: rgba(20, 30, 40, 0.85);
+      border: 2px solid #5a9b6e;
+      border-radius: 50%;
+      width: 40px !important;
+      height: 40px !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      box-shadow: 0 0 8px rgba(90, 155, 110, 0.4);
+    }
+    .cluster-mark span {
+      line-height: 1;
+    }
+    .cluster-mark div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
 </style>
 
 <div class="map-wrapper">
@@ -67,7 +167,16 @@
     const points = pointsByYear[year] || [];
     const stats = statsByYear[year] || {};
 
-    clusterLayer = L.markerClusterGroup();
+    clusterLayer = L.markerClusterGroup({
+      iconCreateFunction: function(cluster) {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+          html: '<div><span>' + count + '</span></div>',
+          className: 'cluster-mark',
+          iconSize: L.point(40, 40)
+        });
+      }
+    });;
     points.forEach(([lat, lon, type]) => {
       const m = L.circleMarker([lat, lon], { radius: 3, color: '#e74c3c', fillOpacity: 0.6, weight: 0 });
       m.bindPopup(type);
@@ -77,10 +186,15 @@
 
     const heatData = points.map(([lat, lon]) => [lat, lon, 0.4]);
     heatLayer = L.heatLayer(heatData, {
-      radius: 12, blur: 18, maxZoom: 15, minOpacity: 0.03, max: 1.0,
-      gradient: { 0.0: 'rgba(0,0,0,0)', 0.2: 'rgba(26,152,80,0.4)', 0.35: 'rgba(145,207,96,0.5)',
-                  0.5: 'rgba(217,239,139,0.5)', 0.65: 'rgba(254,224,139,0.5)',
-                  0.8: 'rgba(252,141,89,0.6)', 0.95: 'rgba(215,48,39,0.7)', 1.0: 'rgba(165,0,38,0.8)' }
+      radius: 8, blur: 4, maxZoom: 15, minOpacity: 0.05, max: 0.5,
+      gradient: {
+        0.0:  'rgba(20, 60, 35, 0)',       // transparent dark green
+        0.15: 'rgba(20, 60, 35, 0.6)',     // dark forest green (low)
+        0.35: 'rgba(30, 100, 50, 0.7)',    // deep green
+        0.55: 'rgba(50, 150, 70, 0.8)',    // medium green
+        0.75: 'rgba(90, 200, 100, 0.88)',  // bright green
+        1.0:  'rgba(160, 255, 140, 0.95)'  // luminous pale green (peak)
+      }
     }).addTo(map);
 
     boundaryLayer = L.geoJSON(geojsonData, {
@@ -127,13 +241,12 @@
     const legend = L.control({ position: 'bottomright' });
     legend.onAdd = () => {
       const div = L.DomUtil.create('div', 'legend');
-      div.innerHTML = `<h4>Crime Density</h4>
-        <div><i style="background:#1a9850"></i>Low</div>
-        <div><i style="background:#d9ef8b"></i>Medium-Low</div>
-        <div><i style="background:#fee08b"></i>Medium</div>
-        <div><i style="background:#fc8d59"></i>Medium-High</div>
-        <div><i style="background:#d73027"></i>High</div>
-        <div><i style="background:#a50026"></i>Very High</div>`;
+      div.innerHTML = `<h4>// Crime Density</h4>
+        <div><i style="background:#143c23"></i>Low</div>
+        <div><i style="background:#1e6432"></i>Mid-Low</div>
+        <div><i style="background:#329646"></i>Mid</div>
+        <div><i style="background:#5ac864"></i>High</div>
+        <div><i style="background:#a0ff8c"></i>Peak</div>`;
       return div;
     };
     legend.addTo(map);
