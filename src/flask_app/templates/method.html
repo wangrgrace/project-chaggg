@@ -12,77 +12,65 @@
 <!-- ROW 1: Codebook -->
 <div class="page-row">
   <section class="page-section">
-    <div class="page-eyebrow">section · 01</div>
-    <h2>what the records say</h2>
-    <p>
-      <span class="placeholder">placeholder</span>
-      Open with the codebook framing — every row is one reported incident, but each column carries assumptions. This section walks through the fields that matter for our analysis.
+    <div class="page-eyebrow">cleaning decisions</div>
+      <p>
+      <span class="placeholder">filter years</span>
+      The year 2001 has a lot of missing values, we therefore decided to filter our data set to range from 2002 - 2025
     </p>
     <p>
-      <span class="placeholder">placeholder</span>
-      Field-by-field summary: <code>primary_type</code> (33 categories), <code>arrest</code> (binary), <code>domestic</code> (binary), <code>community_area</code> (1–77), spatial coordinates, and the temporal stack (year/month/day/hour).
+      <span class="placeholder">invalid values</span>
+      When trying to standardise our data used for the algorithm we found the largest distance between two coordinate points to be ~ 600km. 
+      As we are trying to predict arrest probabilities within the city of Chicago, we decided to bound our coordinates to the city's limits.
+      We also dropped all instances of missing coordinates.
     </p>
     <p>
-      <span class="placeholder">placeholder</span>
-      Caveats up front: incidents are reports, not convictions. Geocoded location is offset for privacy. Counts conflate reporting behavior with underlying events.
+      <span class="placeholder">typos in crime type</span>
+      The raw data included both <code>CRIM SEXUAL ASSAULT</code> and <code>CRIMINAL SEXUAL ASSAULT</code> as primary crime types. 
+      After having a closer look at the <a href="https://data.cityofchicago.org/widgets/c7ck-438e" target="_blank" rel="noopener noreferrer">Illinois Uniform Crime Reporting (IUCR) Codes</a>, we found no record of <code>CRIM SEXUAL ASSAULT</code>
+      being an additonal crime type and therefore renamed it to match the correct spelling.
+    </p>
+    <p>
+      <span class="placeholder">number of incidents</span>
+      We decided to keep crimes for which at least 5,000 incidents were reported. The variable <code>case_number</code> identifies every unique incident.
+    </p>
+    <p>
+      <span class="placeholder">collapsed dataframe</span>
+      One incident could have various registers. We collapsed the dataframe to have one row per incident. Our label variable, <code>arrest</code>, indicates whether at least one person was arrested for that incident.
     </p>
   </section>
-
-  <a href="#" class="page-jump" style="opacity: 0.5; cursor: not-allowed;">
-    <div class="page-jump-num">→ doc</div>
-    <div class="page-jump-title">codebook</div>
-    <div class="page-jump-desc">
-      Full data dictionary with field definitions, value ranges, and source documentation.
-    </div>
-    <div class="page-jump-arrow">coming soon ↗</div>
-  </a>
 </div>
 
 <!-- ROW 2: Cleaning -->
 <div class="page-row">
   <section class="page-section">
-    <div class="page-eyebrow">section · 02</div>
-    <h2>what the records don't say</h2>
+    <div class="page-eyebrow">knn logistic ridge from scratch</div>
     <p>
-      <span class="placeholder">placeholder</span>
-      Raw data is messy. This section documents what we removed, why we removed it, and what those decisions exclude from the analysis.
+      <span class="placeholder">our prediction</span>
+      We wanted to know the probability of being arrested for committing a specific crime (e.g., theft) on a given location within the City of Chicago,
+      at a given time and date.
     </p>
     <p>
-      <span class="placeholder">placeholder</span>
-      Pipeline summary: year filter (2002–2025), coordinate validation (Chicago bounding box), type coercion (Int64 for nullable categoricals), feature extraction (year/month/day/hour, plus cyclical sin/cos encodings), and a known-typo fix (CRIM SEXUAL ASSAULT → CRIMINAL SEXUAL ASSAULT).
-    </p>
-    <p>
-      <span class="placeholder">placeholder</span>
-      Headline numbers: raw ~8.2M → cleaned ~8.0M. The ~200k records we dropped were missing coordinates or fell outside Chicago's bounds.
-    </p>
-  </section>
-
-  <a href="#" class="page-jump" style="opacity: 0.5; cursor: not-allowed;">
-    <div class="page-jump-num">→ src</div>
-    <div class="page-jump-title">pipeline</div>
-    <div class="page-jump-desc">
-      Step-by-step cleaning script with reasoning for each transformation.
-    </div>
-    <div class="page-jump-arrow">coming soon ↗</div>
-  </a>
-</div>
-
-<!-- ROW 3: Interpretation -->
-<div class="page-row">
-  <section class="page-section">
-    <div class="page-eyebrow">section · 03</div>
-    <h2>what the records can prove</h2>
-    <p>
-      <span class="placeholder">placeholder</span>
-      The hard part — what counts as evidence? This section frames how we read deterrence from the cleaned data, and what we can and can't claim.
-    </p>
-    <p>
-      <span class="placeholder">placeholder</span>
-      Notes on causal inference: the dataset is observational, not experimental. We can show correlations between arrest rates and subsequent incidents, but isolating deterrence from other drivers (demographic shifts, policy changes, unreported crime) requires careful design.
-    </p>
-    <p>
-      <span class="placeholder">placeholder</span>
-      How to read the dashboard outputs without overreading them. What a high arrest rate in a community area does and does not imply.
+      <span class="placeholder">how we predict</span>
+      We use a k-nearest neighbours logistic ridge regression.
+      <ol>
+        <li>We select a <code>primary_type</code> and, thus, discard the rest of crime types.</li>
+        <li>We standardize 10 features:
+          <ul>
+            <li><code>latitude</code></li>
+            <li><code>longitude</code></li>
+            <li><code>hour_sin</code></li>
+            <li><code>hour_cos</code></li>
+            <li><code>day_of_week_sin</code></li>
+            <li><code>day_of_week_cos</code></li>
+            <li><code>month_sin</code></li>
+            <li><code>month_cos</code></li>
+            <li><code>day_of_year_sin</code></li>
+            <li><code>day_of_year_cos</code></li>
+          </ul>
+        <li>With the same parameters (mean, standard deviation), we standardise the query.</li>
+        <li>For a given standardised query, we find the k (from 1 to 100) nearest neighbours.</li>
+        <li>Once selected, we run a logistic ridge regression (<code>alpha=1.0, lr=0.1, n_iter=1000</code>) to estimate the probability of being arrested on the selected features.</li>
+      </ol>
     </p>
   </section>
 
@@ -94,5 +82,22 @@
     </div>
     <div class="page-jump-arrow">read ↗</div>
   </a>
+</div>
+
+<!-- ROW 3: Future Steps -->
+<div class="page-row">
+  <section class="page-section">
+    <div class="page-eyebrow">Next steps</div>
+    <p>
+      <span class="placeholder">our next steps</span>
+      We would like to merge this dataset with other sources of information. For example, we would like add ethnic origin as an explanatory variable to
+      determine possible biases on arrests, reported types of crimes and number of registered incidents.
+    </p>
+    <p>
+      <span class="placeholder">what we can do better</span>
+      We find the k-nearest neighbours for every query. This approach might face some difficulties whith scaling: the bigger the dataframe, the longer the time of computation.
+      We could store previous results and show an approximation in case the user introduces a very similar query.
+    </p>
+  </section>
 </div>
 {% endblock %}
