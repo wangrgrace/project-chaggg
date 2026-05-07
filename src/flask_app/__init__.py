@@ -61,7 +61,7 @@ def create_app():
     def about():
         return render_template("about.html")
     
-    @app.route("/overview")
+    @app.route("/data-exploration")
     def overview():
         return render_template("overview.html")
 
