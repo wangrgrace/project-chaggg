@@ -12,20 +12,24 @@
 <!-- ROW 1: Codebook -->
 <div class="page-row">
   <section class="page-section">
-    <div class="page-eyebrow">section · 01</div>
-    <h2>cleaning decisions</h2>
-    <p>
-      <span class="placeholder">placeholder</span>
-      Open with the codebook framing — every row is one reported incident, but each column carries assumptions. This section walks through the fields that matter for our analysis.
+    <div class="page-eyebrow">cleaning decisions</div>
+      <p>
+      <span class="placeholder">filter years</span>
+      The year 2001 has a lot of missing values, we therefore decided to filter our data set to range from 2002 - 2025
     </p>
     <p>
-      <span class="placeholder">placeholder</span>
-      Field-by-field summary: <code>primary_type</code> (33 categories), <code>arrest</code> (binary), <code>domestic</code> (binary), <code>community_area</code> (1–77), spatial coordinates, and the temporal stack (year/month/day/hour).
+      <span class="placeholder">invalid values</span>
+      When trying to standardise our data used for the algorithm we found the largest distance between two coordinate points to be ~ 600km. 
+      As we are trying to predict arrest probabilities within the city of Chicago, we decided to bound our coordinates to the city's limits.
+      We also dropped all instances of missing coordinates.
     </p>
     <p>
-      <span class="placeholder">placeholder</span>
-      Caveats up front: incidents are reports, not convictions. Geocoded location is offset for privacy. Counts conflate reporting behavior with underlying events.
+      <span class="placeholder">typos in crime type</span>
+      The raw data included both <code>CRIM SEXUAL ASSAULT</code> and <code>CRIMINAL SEXUAL ASSAULT</code> as primary crime types. 
+      After having a closer look at the <a href="https://data.cityofchicago.org/widgets/c7ck-438e" target="_blank" rel="noopener noreferrer">Illinois Uniform Crime Reporting (IUCR) Codes</a>, we found no record of <code>CRIM SEXUAL ASSAULT</code>
+      being an additonal crime type and therefore renamed it to match the correct spelling.
     </p>
+  
   </section>
 </div>
 
