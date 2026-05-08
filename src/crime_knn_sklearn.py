@@ -50,4 +50,12 @@ def main():
     print(f"\nPredicted probability of arrest for query: {p * 100:.2f}%")
 
     if p <= 0.49:
-        print("Most
+        print("Most likely scenario: will not get arrested.")
+    elif p < 0.51:
+        print("Most likely scenario: toss a (fair) coin.")
+    else:
+        print("Most likely scenario: will get arrested.")
+
+
+if __name__ == "__main__":
+    main()
