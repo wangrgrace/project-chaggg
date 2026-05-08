@@ -132,7 +132,9 @@ def create_app():
         except (KeyError, TypeError, ValueError) as e:
             return jsonify({"error": f"Invalid input: {e}"}), 400
 
-        if algorithm not in ("knn", "naive_community_area, knn_sklearn"):
+        if algorithm == "naive_community_area":
+            return jsonify({"error": "Naive community area baseline not implemented yet."}), 501
+        if algorithm not in {"knn", "knn_sklearn"}:
             return jsonify({"error": f"Unknown algorithm: {algorithm}"}), 400
 
         artifacts = app.config["KNN_ARTIFACTS"]
