@@ -7,6 +7,8 @@
     - In the process of creating these visualizations, I pointed to interesting patterns in the data and suggested ideas for potential applications based on them. I also highlighted any discrepancies I observed in our preliminary data cleaning process to our group, which other members helped to address and allowed us to refine any loose ends in our data cleaning process.
 - Drafted a Max Heap algorithm, which would be incorporated into our final prediction.
     - Assisted another team member (Gustavo) in the creation of a KNN algorithm, which would manifest in our final product.
-- Wrote up text for final application
+- Finalized dashboard by editing visualizations and writing up text for final application
+    - Expanded upon Huizhao's visualizations by adding a drop-down menu with a "year" option to our "temporal" visualizations. That way, users could examine the time-of-day, day, and monthly trends of crimes not only by time, but also year.
     - Specifically, the "what our exploration revealed," trends dashboard, and dashboards pages.
     - Guided group in finalizing UI by providing examples of interactive crime maps used in academic research and referencing important details to include. Served as editor for final text. 
+
