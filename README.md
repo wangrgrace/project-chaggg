@@ -20,8 +20,11 @@ We are using the City of Chicago's crime dataset, which provides comprehensive i
 
 ### 1. Clone the repository
 
+```
 git clone https://github.com/hertie-dsa-26/project-chaggg.git
 cd project-chaggg
+
+````
 
 ### 2. Install dependencies
 
