@@ -23,12 +23,13 @@ We are using the City of Chicago's crime dataset, which provides comprehensive i
 ```
 git clone https://github.com/hertie-dsa-26/project-chaggg.git
 cd project-chaggg
-
 ````
 
 ### 2. Install dependencies
 
+```
 uv sync
+```
 
 ### 3. Set up the data
 
@@ -56,7 +57,9 @@ Then skip straight to **Step 4**.
 This will download the raw data from the Chicago Data Portal, clean it, and
 generate all precomputed artifacts. It may take several minutes.
 
+```
 uv run python -m scripts.main
+```
 
 Follow the prompts in the terminal.
 
@@ -64,7 +67,9 @@ Follow the prompts in the terminal.
 
 ### 4. Run the app
 
+```
 uv run run_app.py 
+```
 
 Then open http://127.0.0.1:5000 in your browser.
 
